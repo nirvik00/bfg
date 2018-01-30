@@ -1,0 +1,59 @@
+﻿                             x
+                            xxx                     
+                           xxx                       
+                          xxxx                         
+			  xxxxxx                         
+	 		xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx   
+		       xxxxxxxxxxxxxxxxxxxxxxxx         
+ 		    xxxxxxxxxxxxxxxxxxxxxxxxxxxx            
+ 		 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx    
+ 	        xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx          
+	      xxx   xxxxxxxxxxxxxxxxxxxxxxxxxxxxx       
+	   xxxxx  xxxxxxxxxxx  xxxxxxxxxxxxxxxxxxx      
+	xxxxxxxxxxxxxxx xx    xxxxxxxxxxxxx  xxxxx    
+      xxxxxxxxxxxxxxxxxx   x     xxxxxxxxxxxxx   xxxx   
+    xxxxxxxxxxxxxx              xxxxxxxxxxxxxxx    xxx  
+   xxxx                         xxxxxxxxxxxxxxx      x
+    xx                        xxxxxxxxxxxxxxxxxxx        
+                          xxxxxxxxxxxxxxxxxxxxxxx       
+	 	    xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ 		xxxxxxxxxxxxxxxxxxxxxxxxxxxx  xxxxx       
+	    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx    xxxxx       
+	  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx      xxxx       
+	xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx         	 xxx       
+      xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx           xxx
+     xxxxxxxxxxxxxxxxxxx   xxxxxx               	xx        
+   xxxxxxxxxxxxxxxx                            x         
+  xxxxxxxxxxxxxxx                 xx                      
+ xxxxxxxxxxxxxxx                     xxxx                
+ xxxxxxxxxxx xxx                        xxxxx              
+ xxxxxxxxxxx  xx                          xxxxxxx          
+ xxxxxxxxxxx   x            xxx     xxxx   xxxxxxx        
+    xxxxxxxxxxxx                 xxx     xxxxxxxxxxxxxx      
+   xxxxxxxxxxxxxxx              xxxxxxxxxxxxxxxxxxxxxxxx    
+   x xxxxxxxxxxxxxxxxx         xxxxxxxxxxxxxxxxxxxxxxxxxxx  
+    xx  xxxxxxxxxxxx         xxxxxxxxxxxxxxxx   xxxxxxxxxxxx 
+     x  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx           xxxxxxxxx
+            xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx         xxxxx
+       xxx     xxxxxxxxxxxxx     xxxxxxxxxx              xxx
+        xxx        xxx xxxxxxxxx     xxxxx                 xxx
+      xxx               xxxxxxx       xxxxxxxx            xx
+   xx                   xxxxx                         xx
+   x                    xxxx                          x
+                        xxx                          x
+                         xx                          x
+						     x
+
+Follow the steps to install and run the program
+0. close Rhino
+1. double click installer.exe
+2. open Rhino
+3. type the following command EditPythonScript
+4. open first_after_installing_run.py from the editor (python interpreter) and run the script
+5. close editor
+6. type the command gensite from Rhino
+7. this installer is currently for windows
+
+Thank you
+-Nirvik Saha
+

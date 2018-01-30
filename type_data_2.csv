@@ -1,0 +1,4 @@
+0.name,1.area-range,2.dim1-range,3.dim2-range,4.separation-range,5.number,6.max_ht,7.Color
+residential_tower,20-30,30-37,10.5-15.5,10.5-20.2,5,30,255-0-0
+low_rise,20-30,17-23,17-23,10.5-20.1,4,30,0-255-0
+townhouse,40-60,50-60,17-24,10.5-20.0,3,30,0-0-255

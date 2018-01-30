@@ -1,0 +1,4 @@
+name,area-range,dim1-range,dim2-range,separation-range,number
+new_residential_tower,10500-20000,55-65,55-65,75-85,7
+low_rise,10000-20000,50-65,250-300,75-85,3
+townhouse,5500-8000,40-50,100-120,75-85,5

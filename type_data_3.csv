@@ -1,0 +1,5 @@
+Building Type,Number,Area Min,Area Max,Length Min,Length Max,Width Min,Width Max,Height Min,Height Max,Separation Min,Separation Max,Color
+residential_tower,2,4965,14484,20,39.5,20,40,10.8,16.2,10.5,20,255-0-0
+low_rise,3,7000,14000,25,28,25,28,27,54,10.5,20,0-255-0
+townhouse,2,1156,1700,12,34,12,34,10.8,10.8,10.5,20,0-0-255
+Parking,2,1815,6918,20,25,20,25,10.8,16.2,10.5,20,120-120-0
