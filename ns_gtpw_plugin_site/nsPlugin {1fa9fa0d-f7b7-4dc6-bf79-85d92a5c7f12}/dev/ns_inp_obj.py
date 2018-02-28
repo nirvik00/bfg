@@ -3,28 +3,28 @@ import math
 import random
 import operator
 from operator import itemgetter
+from ns_site_obj import site_obj as site_obj
 
+
+        
 class inp_obj(object):
-    #def __init__(self,c,fsr,n,a,d,e,s,num,max_ht,colr):
-    def __init__(self,c,fsr,n,num,a_min,a_max,l_min,l_max,w_min,w_max,h_min,h_max,sep_min,sep_max,colr):
+    def __init__(self,c,n,num,far_rat,l_min,l_max,w_min,w_max,h_min,h_max,sep_min,sep_max,colr):
         self.name=n
         self.crv=c
         self.site_area=rs.CurveArea(c)[0]
-        self.fsr=fsr
-        self.bua=self.site_area*self.fsr
+        self.far_rat=float(far_rat)
         self.num_floors=0
         self.gen_poly=[]
         self.req_poly=[]
         self.floor_plates=[]
-        self.min_ht=h_min
-        self.max_ht=h_max
+        self.h0=float(h_min)
+        self.h1=float(h_max)
+        self.ht=random.uniform(self.h0, self.h1)
         self.srf=[]
         re=int(colr.split("-")[0])
         gr=int(colr.split("-")[1])
         bl=int(colr.split("-")[2])
         self.colr=(re,gr,bl)
-        self.ar_0=float(a_min)
-        self.ar_1=float(a_max)
         self.d0_0=float(l_min)
         self.d0_1=float(l_max)
         self.d1_0=float(w_min)
@@ -32,12 +32,19 @@ class inp_obj(object):
         self.s_0=float(sep_min)
         self.s_1=float(sep_max)
         self.number=int(num)
-        self.ar=random.randint(int(self.ar_0),int(self.ar_1))
+        self.ar=self.site_area*self.far_rat
+        self.req_ar=self.site_area*self.far_rat# same as above for getters & setters
         self.d0=random.randint(int(self.d0_0),int(self.d0_1))
         self.d1=random.randint(int(self.d1_0),int(self.d1_1))
         self.sep=random.randint(int(self.s_0),int(self.s_1))
         self.b0=self.d0+self.sep
         self.b1=self.d1+self.sep
+
+    def getReqAr(self):
+        return self.req_ar
+        
+    def getHt(self):
+        return self.ht
         
     def getName(self):
         return self.name
@@ -117,10 +124,12 @@ class inp_obj(object):
         poly=rs.AddPolyline([r,u,s,t,r])
         self.req_poly.append(poly)
     
-    def getReqPoly(self):# internal poly - n in number same as boundary poly
+    def getReqPoly(self):
+        # internal poly - n in number same as boundary poly
         return self.req_poly
     
-    def getGenPoly(self):#boundary poly - n in number 
+    def getGenPoly(self):
+        #boundary poly - n in number 
         return self.gen_poly
     
     def setGenPoly(self,poly):
@@ -145,5 +154,11 @@ class inp_obj(object):
         return self.colr
     
     def display(self):
-        print('attributes are ok for the class ns_inp_obj')
-    
+        srfobj_li=[]
+        for srf in self.srf:
+            b=rs.BoundingBox(self.srf)            
+            p0=b[0]
+            p1=b[1]
+            p2=b[2]
+            p3=b[3]
+            ht=str(rs.Distance(b[3],b[7]))
