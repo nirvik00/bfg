@@ -3,49 +3,55 @@ import math
 import random
 import operator
 from operator import itemgetter
-from ns_site_obj import site_obj as site_obj
 from ns_inp_obj import inp_obj as inp_obj
-from ns_genSite import genSite as genSite
+from ns_site_obj import site_obj as site_obj
 
 class main(object):
-    def __init__(self,x,fsr,c):
+    def __init__(self,x,c):
         self.path=x
-        self.fsr=fsr
-        self.site=c
+        self.site=rs.coercecurve(c)
         self.req_obj=[]
         self.site_ar=rs.CurveArea(self.site)[0]
+        self.fsr=0
         self.bua=float(self.site_ar)*float(self.fsr)
-        #print('bua : ',self.bua)
+        self.srf_obj=[]
             
     def getInpObj(self):
         ln=[]
         with open(self.path ,"r") as f:
-            x=f.readlines()
+            x=f.readlines() 
+        rs.ClearCommandHistory()
         k=0
         r=[]
+        req_total_far=0
         for i in x:
             if(k>0):
-                n=i.split(',')[0]
-                num=i.split(',')[1]
-                a_min=i.split(',')[2]
-                a_max=i.split(',')[3]
-                l_min=i.split(',')[4]
-                l_max=i.split(',')[5]
-                w_min=i.split(',')[6]
-                w_max=i.split(',')[7]
-                h_min=i.split(',')[8]
-                h_max=i.split(',')[9]
-                sep_min=i.split(',')[10]
-                sep_max=i.split(',')[11]
-                colr=i.split(',')[12]
-                o=inp_obj(self.site,self.fsr,n,num,a_min,a_max,l_min,l_max,w_min,w_max,h_min,h_max,sep_min,sep_max,colr)
-                r.append(o)
+                try:
+                    n=i.split(',')[0]
+                    num=i.split(',')[1]
+                    far_rat=float(i.split(',')[2])
+                    req_total_far+=far_rat
+                    l_min=i.split(',')[3]
+                    l_max=i.split(',')[4]
+                    w_min=i.split(',')[5]
+                    w_max=i.split(',')[6]
+                    h_min=i.split(',')[7]
+                    h_max=i.split(',')[8]
+                    sep_min=i.split(',')[9]
+                    sep_max=i.split(',')[10]
+                    colr=i.split(',')[11]
+                    o=inp_obj(self.site,n,num,far_rat,l_min,l_max,w_min,w_max,h_min,h_max,sep_min,sep_max,colr)
+                    r.append(o)
+                except:
+                    print('error in csv')
+                    break
             k+=1
+        self.fsr = req_total_far
+        self.bua=float(self.site_ar)*float(self.fsr)
         for i in r:
             ar=i.getArea()
             num_flrs=int(ar/(i.getNumber()*i.getFloorArea()))+1
             i.setNumFloors(num_flrs)
-            #print('req : ',i.getName(),ar,i.getNumber(),i.getFloorArea(),i.getArea(), num_flrs)
         self.req_obj=r
         return r
         
@@ -112,6 +118,14 @@ class main(object):
         counter=0
         for i in self.req_obj:
             poly=i.getGenPoly() # n boundary poygons are created from input
+            num_flrs=i.getNumFloors()
+            l=i.getSide0()
+            w=i.getSide1()
+            a=i.getReqAr()
+            h=i.getHt()
+            #print(num_flrs, l, w, a, h)
+            if((num_flrs*4)<(a/(2*l*w))):
+                rs.MessageBox('number of floor = '+str(num_flrs)+'\ninput L and W for the required FSR are insufficient.\nCompensated in height ')
             if(poly is not None and len(poly)>0):
                 for j in poly: # for each poly in bounding-poly get internal-poly
                     counter2=0
@@ -128,8 +142,10 @@ class main(object):
                         rs.CapPlanarHoles(srf)
                         rs.ObjectColor(srf,i.getColr())
                         i.addSrf(srf)
+                        self.srf_obj.append([i,srf])
                     except:
                         pass
+                        
     def retResult(self):
         str=[]
         sum_area=0
@@ -180,4 +196,9 @@ class main(object):
                     rs.DeleteObject(bound_poly)
                 except:
                     pass
-                
+                    
+    def finalSrf(self):
+        return self.srf_obj
+    
+    def getMainFSR(self):
+        return self.fsr
