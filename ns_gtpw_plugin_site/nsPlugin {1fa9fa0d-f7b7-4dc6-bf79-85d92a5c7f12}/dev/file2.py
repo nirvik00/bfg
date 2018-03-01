@@ -1,35 +1,3 @@
-import rhinoscriptsyntax as rs
-import random
-import math
-import os
-from time import time
-from ns_inp_obj import inp_obj as inp_obj
-from ns_main_2 import main as main
-from ns_site_obj import site_obj as site_obj
-
-class RunProc(object):
-    def __init__(self):
-        rs.AddLayer("garbage",visible=False)
-        self.max=500
-        self.fsr=0
-        self.loc_pts=[]
-        self.res_obj=[]
-        self.del_srf_ite=[]
-        self.del_flr_plate_ite=[]
-        self.num_copies=1
-        self.site_crv=rs.GetObject('pick site boundary')
-        self.neg_site_crv=rs.GetObjects('pick negative boundary')
-        self.ht_constraints=rs.GetObjects('pick height constraints')
-        self.site_copy=[]
-        self.req_srfobj_li=[]
-        self.got_ar_li=[]
-        n=rs.GetInteger('Enter number of variations required')
-        if(n==0 or n==None):
-            n=1
-        FileName="input_1.csv"
-        self.FilePath=rs.GetString("Enter the working directory for the program : ")
-        if(self.FilePath==""):
-            self.FilePath=import rhinoscriptsyntax as rs
 import random
 import math
 import os
