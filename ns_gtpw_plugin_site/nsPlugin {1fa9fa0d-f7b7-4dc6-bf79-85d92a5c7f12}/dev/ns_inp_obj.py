@@ -7,9 +7,10 @@ from ns_site_obj import site_obj as site_obj
 
 
 class inp_obj(object):
-    def __init__(self,c,n,num,far_rat,l_min,l_max,w_min,w_max,ht_,sep_min,sep_max,colr):
+    def __init__(self,c,n,num,far_rat,l_min,l_max,w_min,w_max,ht_,sep_min,sep_max,colr, nc):
         self.name=n
         self.crv=c
+        self.neg_crv=nc
         self.site_area=rs.CurveArea(c)[0]
         self.far_rat=float(far_rat)
         self.num_floors=0
@@ -157,10 +158,17 @@ class inp_obj(object):
         t1=rs.PointInPlanarClosedCurve(a,self.crv)
         t2=rs.PointInPlanarClosedCurve(b,self.crv)
         t3=rs.PointInPlanarClosedCurve(c,self.crv)
-        if(t1!=0 and t2!=0 and t3!=0):
-            return True
+        sum=0
+        for i in self.neg_crv:
+            tx1=rs.PointInPlanarClosedCurve(a,i)
+            tx2=rs.PointInPlanarClosedCurve(b,i)
+            tx3=rs.PointInPlanarClosedCurve(c,i)
+            if(tx1 !=0 or tx2!=0 or tx3!=0):
+                sum+=1
+        if(t1!=0 and t2!=0 and t3!=0 and sum<1):
+            return True #inside or on curve
         else:
-            return False
+            return False    #outside the curve
     
     def addSrf(self,srf):
         self.srf.append(srf)
