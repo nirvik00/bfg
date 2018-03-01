@@ -14,10 +14,17 @@ class RunProc(object):
         self.fsr=0
         self.loc_pts=[]
         self.res_obj=[]
+        self.del_srf_ite=[]
+        self.del_flr_plate_ite=[]
         self.num_copies=1
         self.site_crv=rs.GetObject('pick site boundary')
+        self.neg_site_crv=rs.GetObjects('pick negative boundary')
         self.site_copy=[]
         self.req_srfobj_li=[]
+        self.got_ar_li=[]
+        n=rs.GetInteger('Enter number of variations required')
+        if(n==0 or n==None):
+            n=1
         FileName="input_1.csv"
         FilePath=rs.GetString("Enter the working directory for the program : ")
         if(FilePath==""):
@@ -29,9 +36,7 @@ class RunProc(object):
             return
         os.chdir(FilePath)
         req_fsr=3.0
-        n=rs.GetInteger('Enter number of variations required')
-        if(n==0 or n==None):
-            n=1
+
         a=int(math.sqrt(n))
         b=int(math.sqrt(n))
         self.num_copies=n
@@ -45,21 +50,42 @@ class RunProc(object):
         # this is the correct field
         for i in range(0,a,1):
             for j in range(0,b,1):
+                BoolAR=False
                 print('iteration %s in RunProc()'%(k))
                 temp_site_crv=rs.CopyObject(self.site_crv,[self.max*i,self.max*j,0])
                 self.site_copy.append(temp_site_crv)
-                m=main(FileName,temp_site_crv)
+                m=main(FileName,temp_site_crv,self.neg_site_crv)
                 r=m.getInpObj()
                 self.res_obj.append(r)
-                m.genFuncObj_Site()
+                got_flr_area_ite=m.genFuncObj_Site()
+                self.got_ar_li.append(got_flr_area_ite)
                 s=m.retResult()
                 self.fsr=m.getMainFSR()
-                req_str_li.append(s)
+                
+                ###   highlight or not
                 pt=rs.CurveAreaCentroid(temp_site_crv)[0]
-                self.loc_pts.append(pt)
+                self.loc_pts.append(pt)# =>same as: got_area=m.retGenArea()
+                ### test for area satisfiaed
+                ret_per_ar=self.getVar(got_flr_area_ite,s)
+                if(ret_per_ar<10):
+                    rs.AddCircle(pt, self.getMax()/2)
+                
+                print("variation : ",ret_per_ar)
+                msg=''
+                if(ret_per_ar>5):
+                    msg=("area not met")
+                    BoolAR=False
+                else:
+                    BoolAR=True
+                    msg=("area is met")
+                #rs.MessageBox(msg)
+                print(msg)
+                #end test
+                req_str_li.append(s)
+                
                 for nli in self.res_obj:
                     for mli in nli:
-                        mli.display()                
+                        mli.display()
                 #three connections
                 dx=pt[0]
                 dy=pt[1]
@@ -75,10 +101,22 @@ class RunProc(object):
                 self.addLabel(k,temp_site_crv)
                 self.req_srfobj_li.append(m.finalSrf())
                 k+=1
-        
+            
         self.writeToCsv(k,req_str_li)
         rs.EnableRedraw(True)
-        
+    
+    def getVar(self, ar, str_li):
+        total_area=0
+        gc=0
+        site_area=rs.CurveArea(self.site_crv)[0]
+        for j in str_li:#1-d element of str list
+            #name, area, num_flrs, num_poly, total_ar_int_poly
+            gc+=j[2]*j[4]
+        bua=site_area*self.fsr
+        f_gc=gc*100/site_area
+        per_var_area=(math.fabs(bua-ar)*100)/(bua)
+        return per_var_area
+    
     def addLabel(self,k,crv):
         b=rs.BoundingBox(crv)
         rs.AddTextDot((k+1),b[0])
@@ -144,13 +182,13 @@ class RunProc(object):
         best_index=0
         for i in range(counter):#2-d str list
             fs.write("\n\n\n,,ENTRY NUMBER,"+str(i+1))
-            fs.write("\nType of Building,Total Area,Num of Each, Num plotted, Area of floorplate\n")
+            fs.write("\nType of Building,Required Area,Num of Each, Num plotted, Area of floorplate, Area Achieved, Balance\n")
             total_area=0
             gc=0
             for j in str_li[i]:#1-d element of str list
-                #name, area, num_flrs, num_poly, ar_int_poly
-                fs.write(str(j[0])+","+str(j[1])+","+str(j[2])+","+str(j[3])+","+str(j[4])+"\n")
-                total_area+=j[2]*j[3]*j[4]
+                #name, area, num_flrs, num_poly, ar_int_poly, actual_area_type
+                fs.write(str(j[0])+","+str(j[1])+","+str(j[2])+","+str(j[3])+","+str(j[4])+","+str(j[5])+","+str(j[6])+"\n")
+                total_area+=float(j[5])
                 gc+=j[2]*j[4]
             fs.write("\nGross Floor Area,"+str(total_area))
             fsr=total_area/site_area
@@ -167,8 +205,7 @@ class RunProc(object):
         fs.close()
         r=self.res_obj[best_index]
         loc_pt=self.loc_pts[best_index]
-        rs.AddCircle(loc_pt,self.max/2)
-        
+        rs.AddCircle(loc_pt,(2+self.max)/2)
         
     def output3sync(self, srf_obj,pts,v,k):
         FilePath='c:/nir_dev/web/dennis/proj1/public/csv'
