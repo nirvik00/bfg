@@ -104,14 +104,19 @@ class RunProc(object):
                     self.output3sync(srf_obj,rs.CurvePoints(temp_site_crv),v,k)
                 else:
                     self.output3mass(srf_obj,rs.CurvePoints(temp_site_crv),v,k)
-                FilePath=FilePath='c:/nir_dev/temp/output_1'
-                os.chdir(FilePath)
+                try:
+                    file_path='c:/nir_dev/temp/output_1'
+                    os.chdir(file_path)
+                except:
+                    pass
                 #end 3 connections
                 self.addLabel(k,temp_site_crv)
                 self.req_srfobj_li.append(m.finalSrf())
                 k+=1
-            
-        self.writeToCsv(k,req_str_li)
+        try:
+            self.writeToCsv(k,req_str_li)
+        except:
+            pass
         rs.EnableRedraw(True)
     
     def getVar(self, ar, str_li):
