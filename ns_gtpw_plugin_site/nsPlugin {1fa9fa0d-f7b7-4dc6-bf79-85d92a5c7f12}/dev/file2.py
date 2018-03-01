@@ -1,3 +1,4 @@
+import rhinoscriptsyntax as rs
 import random
 import math
 import os
