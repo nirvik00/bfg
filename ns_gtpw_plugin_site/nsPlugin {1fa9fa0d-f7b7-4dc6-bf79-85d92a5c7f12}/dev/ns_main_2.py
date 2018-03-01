@@ -7,8 +7,9 @@ from ns_inp_obj import inp_obj as inp_obj
 from ns_site_obj import site_obj as site_obj
 
 class main(object):
-    def __init__(self,x,c,nc):
+    def __init__(self,x,c,nc,hc):
         self.neg_site_crv=nc
+        self.ht_constraints=hc
         self.path=x
         self.site=rs.coercecurve(c)
         self.req_obj=[]
@@ -143,22 +144,40 @@ class main(object):
                     i.genIntPoly(j) # iterate over the first poly then second, this time there are 2 polys
                     npoly=i.getReqPoly()
                 for j in i.getReqPoly():
-                    li=[]
-                    for k in range(i.getNumFloors()+1):
-                        """
-                        # stop iteration at height
-                        if((4*k)>h):
-                            break
-                        """
-                        # allow iteration until area is met
-                        c=rs.CopyObjects(j,[0,0,4*k])
-                        self.total_floor_area+=rs.CurveArea(j)[0]
-                        if(rs.IsCurve(c)):
-                            floor_plate.append(c)
-                            actual_num_flr+=1
-                            actual_ar_each+=(rs.CurveArea(c)[0])
-                        rs.ObjectLayer(c,"garbage")
-                        li.append(c)
+                    ####         handle height constraint elements  ####
+                    ht_constraint=100000000
+                    for h_ite in self.ht_constraints:
+                        bhtc=rs.BoundingBox(h_ite)
+                        poly_htc=rs.AddPolyline([bhtc[0],bhtc[1],bhtc[2],bhtc[3],bhtc[0]])
+                        int_htcon_sum=0 #if this remains 0 => no change
+                        for poly_pt in rs.CurvePoints(j):
+                            t=rs.PointInPlanarClosedCurve(poly_pt,poly_htc)
+                            if(t!=0): #point not outside poly
+                                sum+=1
+                        intx1=rs.CurveCurveIntersection(poly_htc,j)
+                        if(intx1 and (intx1)>0):
+                            sum+=1
+                        if(sum<1):
+                            ht_constraint=rs.Distance(bhtc[0],bhtc[4])
+                        li=[]
+                        for k in range(i.getNumFloors()+1):
+                            """
+                            # stop iteration at height input csv
+                            if((4*k)>h):
+                                break
+                            """
+                            # allow iteration until area is met
+                            # stop iteration at height constraint
+                            if((4*k)>ht_constraint):
+                                break
+                            c=rs.CopyObjects(j,[0,0,4*k])
+                            self.total_floor_area+=rs.CurveArea(j)[0]
+                            if(rs.IsCurve(c)):
+                                floor_plate.append(c)
+                                actual_num_flr+=1
+                                actual_ar_each+=(rs.CurveArea(c)[0])
+                            rs.ObjectLayer(c,"garbage")
+                            li.append(c)
                     try:
                         srf=rs.AddLoftSrf(li)
                         rs.CapPlanarHoles(srf)
