@@ -146,41 +146,43 @@ class main(object):
                 for j in i.getReqPoly():
                     ####         handle height constraint elements  ####
                     ht_constraint=100000000
-                    for h_ite in self.ht_constraints:
-                        bhtc=rs.BoundingBox(h_ite)
-                        poly_htc=rs.AddPolyline([bhtc[0],bhtc[1],bhtc[2],bhtc[3],bhtc[0]])
-                        int_htcon_sum=0 #if this remains 0 => no change
-                        for poly_pt in rs.CurvePoints(j):
-                            t=rs.PointInPlanarClosedCurve(poly_pt,poly_htc)
-                            if(t!=0): #point not outside poly
+                    if(self.ht_constraints):
+                        for h_ite in self.ht_constraints:
+                            bhtc=rs.BoundingBox(h_ite)
+                            poly_htc=rs.AddPolyline([bhtc[0],bhtc[1],bhtc[2],bhtc[3],bhtc[0]])
+                            int_htcon_sum=0 #if this remains 0 => no change
+                            for poly_pt in rs.CurvePoints(j):
+                                t=rs.PointInPlanarClosedCurve(poly_pt,poly_htc)
+                                if(t!=0): #point not outside poly
+                                    int_htcon_sum+=1
+                            intx1=rs.CurveCurveIntersection(poly_htc,j)
+                            if(intx1 and len(intx1)>0):
                                 int_htcon_sum+=1
-                        intx1=rs.CurveCurveIntersection(poly_htc,j)
-                        if(intx1 and len(intx1)>0):
-                            int_htcon_sum+=1
-                        if(int_htcon_sum>0):
-                            ht_constraint=rs.Distance(bhtc[0],bhtc[4])
-                            print('height constraint applied',nm)
-                        else:
-                            print('height constraint NOT applied',nm)
-                        li=[]
-                        for k in range(i.getNumFloors()+1):
-                            """
-                            # stop iteration at height input csv
-                            if((4*k)>h):
-                                break
-                            """
-                            # allow iteration until area is met
-                            # stop iteration at height constraint
-                            if((4*k)>ht_constraint):
-                                break
-                            c=rs.CopyObjects(j,[0,0,4*k])
-                            self.total_floor_area+=rs.CurveArea(j)[0]
-                            if(rs.IsCurve(c)):
-                                floor_plate.append(c)
-                                actual_num_flr+=1
-                                actual_ar_each+=(rs.CurveArea(c)[0])
-                            rs.ObjectLayer(c,"garbage")
-                            li.append(c)
+                            if(int_htcon_sum>0):
+                                ht_constraint=rs.Distance(bhtc[0],bhtc[4])
+                                print('height constraint applied',nm)
+                            else:
+                                print('height constraint NOT applied',nm)
+                        
+                    li=[]
+                    for k in range(i.getNumFloors()+1):
+                        """
+                        # stop iteration at height input csv
+                        if((4*k)>h):
+                            break
+                        """
+                        # allow iteration until area is met
+                        # stop iteration at height constraint
+                        if((4*k)>ht_constraint):
+                            break
+                        c=rs.CopyObjects(j,[0,0,4*k])
+                        self.total_floor_area+=rs.CurveArea(j)[0]
+                        if(rs.IsCurve(c)):
+                            floor_plate.append(c)
+                            actual_num_flr+=1
+                            actual_ar_each+=(rs.CurveArea(c)[0])
+                        rs.ObjectLayer(c,"garbage")
+                        li.append(c)
                     try:
                         srf=rs.AddLoftSrf(li)
                         rs.CapPlanarHoles(srf)
