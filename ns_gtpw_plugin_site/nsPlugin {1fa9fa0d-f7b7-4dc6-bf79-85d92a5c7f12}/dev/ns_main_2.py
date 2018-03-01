@@ -144,7 +144,7 @@ class main(object):
                     i.genIntPoly(j) # iterate over the first poly then second, this time there are 2 polys
                     npoly=i.getReqPoly()
                 for j in i.getReqPoly():
-                    ####         handle height constraint elements  ####
+                    ####         handle height constraint elements      ####
                     ht_constraint=100000000
                     if(self.ht_constraints):
                         for h_ite in self.ht_constraints:
@@ -155,15 +155,19 @@ class main(object):
                                 t=rs.PointInPlanarClosedCurve(poly_pt,poly_htc)
                                 if(t!=0): #point not outside poly
                                     int_htcon_sum+=1
+                            for bound_pt in rs.CurvePoints(poly_htc):
+                                t=rs.PointInPlanarClosedCurve(bound_pt,j)
+                                if(t!=0): #point not outside poly
+                                    int_htcon_sum+=1
                             intx1=rs.CurveCurveIntersection(poly_htc,j)
                             if(intx1 and len(intx1)>0):
                                 int_htcon_sum+=1
                             if(int_htcon_sum>0):
                                 ht_constraint=rs.Distance(bhtc[0],bhtc[4])
-                                print('height constraint applied',nm)
+                                #print('height constraint applied',nm)
                             else:
-                                print('height constraint NOT applied',nm)
-                        
+                                #print('height constraint NOT applied',nm)
+                                pass
                     li=[]
                     for k in range(i.getNumFloors()+1):
                         """
