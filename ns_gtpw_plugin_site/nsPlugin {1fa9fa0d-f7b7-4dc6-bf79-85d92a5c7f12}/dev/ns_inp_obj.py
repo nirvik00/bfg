@@ -6,9 +6,8 @@ from operator import itemgetter
 from ns_site_obj import site_obj as site_obj
 
 
-        
 class inp_obj(object):
-    def __init__(self,c,n,num,far_rat,l_min,l_max,w_min,w_max,h_min,h_max,sep_min,sep_max,colr):
+    def __init__(self,c,n,num,far_rat,l_min,l_max,w_min,w_max,ht_,sep_min,sep_max,colr):
         self.name=n
         self.crv=c
         self.site_area=rs.CurveArea(c)[0]
@@ -17,9 +16,7 @@ class inp_obj(object):
         self.gen_poly=[]
         self.req_poly=[]
         self.floor_plates=[]
-        self.h0=float(h_min)
-        self.h1=float(h_max)
-        self.ht=random.uniform(self.h0, self.h1)
+        self.ht=float(ht_)
         self.srf=[]
         re=int(colr.split("-")[0])
         gr=int(colr.split("-")[1])
@@ -31,7 +28,7 @@ class inp_obj(object):
         self.d1_1=float(w_max)
         self.s_0=float(sep_min)
         self.s_1=float(sep_max)
-        self.number=int(num)
+        self.number=int(float(num))
         self.ar=self.site_area*self.far_rat
         self.req_ar=self.site_area*self.far_rat# same as above for getters & setters
         self.d0=random.randint(int(self.d0_0),int(self.d0_1))
@@ -39,6 +36,8 @@ class inp_obj(object):
         self.sep=random.randint(int(self.s_0),int(self.s_1))
         self.b0=self.d0+self.sep
         self.b1=self.d1+self.sep
+        self.actual_flr_num=0
+        self.actual_area=0
 
     def getReqAr(self):
         return self.req_ar
@@ -76,12 +75,31 @@ class inp_obj(object):
     def setNumFloors(self,num):
         self.num_floors=num
     
+    def getPossFlrFromHt(self):
+        n=int(self.ht/4)
+        return n
+    
     def getFloorArea(self):
         ar=self.d1*self.d0
         return ar
     
     def getNumFloors(self):
         return self.num_floors
+    
+    def setActualNumFlrs(self, n):
+        self.actual_flr_num=n
+        
+    def getActualNumFlrs(self):
+        return self.actual_flr_num
+    
+    def setActualArea(self, a):
+        self.actual_area=a
+        
+    def getActualArea(self):
+        return self.actual_area
+    
+    def getDifferenceArea(self):
+        return (self.actual_area-self.ar)
     
     def getCrvArea(self):
         ar=0
@@ -162,3 +180,9 @@ class inp_obj(object):
             p2=b[2]
             p3=b[3]
             ht=str(rs.Distance(b[3],b[7]))
+
+    def setFloorPlate(self, s):
+        self.floor_plate=s
+        
+    def getFloorPlate(self):
+        return self.floor_plate
