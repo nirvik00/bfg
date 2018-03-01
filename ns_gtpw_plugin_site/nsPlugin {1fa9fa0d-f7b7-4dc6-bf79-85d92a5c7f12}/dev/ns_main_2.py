@@ -153,12 +153,15 @@ class main(object):
                         for poly_pt in rs.CurvePoints(j):
                             t=rs.PointInPlanarClosedCurve(poly_pt,poly_htc)
                             if(t!=0): #point not outside poly
-                                sum+=1
+                                int_htcon_sum+=1
                         intx1=rs.CurveCurveIntersection(poly_htc,j)
-                        if(intx1 and (intx1)>0):
-                            sum+=1
-                        if(sum<1):
+                        if(intx1 and len(intx1)>0):
+                            int_htcon_sum+=1
+                        if(int_htcon_sum>0):
                             ht_constraint=rs.Distance(bhtc[0],bhtc[4])
+                            print('height constraint applied',nm)
+                        else:
+                            print('height constraint NOT applied',nm)
                         li=[]
                         for k in range(i.getNumFloors()+1):
                             """
