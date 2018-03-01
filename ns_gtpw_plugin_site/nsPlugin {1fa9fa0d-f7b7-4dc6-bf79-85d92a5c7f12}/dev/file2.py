@@ -54,7 +54,8 @@ class RunProc(object):
                 print('iteration %s in RunProc()'%(k))
                 temp_site_crv=rs.CopyObject(self.site_crv,[self.max*i,self.max*j,0])
                 self.site_copy.append(temp_site_crv)
-                m=main(FileName,temp_site_crv,self.neg_site_crv)
+                temp_neg_crv=rs.CopyObjects(self.neg_site_crv,[self.max*i,self.max*j,0])
+                m=main(FileName,temp_site_crv,temp_neg_crv)
                 r=m.getInpObj()
                 self.res_obj.append(r)
                 got_flr_area_ite=m.genFuncObj_Site()
@@ -70,7 +71,7 @@ class RunProc(object):
                 if(ret_per_ar<10):
                     rs.AddCircle(pt, self.getMax()/2)
                 
-                print("variation : ",ret_per_ar)
+                #print("variation : ",ret_per_ar)
                 msg=''
                 if(ret_per_ar>5):
                     msg=("area not met")
@@ -79,7 +80,7 @@ class RunProc(object):
                     BoolAR=True
                     msg=("area is met")
                 #rs.MessageBox(msg)
-                print(msg)
+                #print(msg)
                 #end test
                 req_str_li.append(s)
                 
@@ -289,4 +290,5 @@ class RunProc(object):
 
 
 if __name__=='__main__':
+    rs.ClearCommandHistory()
     RunProc()
