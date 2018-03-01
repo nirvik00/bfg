@@ -55,8 +55,14 @@ class RunProc(object):
                 print('iteration %s in RunProc()'%(k))
                 temp_site_crv=rs.CopyObject(self.site_crv,[self.max*i,self.max*j,0])
                 self.site_copy.append(temp_site_crv)
-                temp_neg_crv=rs.CopyObjects(self.neg_site_crv,[self.max*i,self.max*j,0])
-                temp_ht_constraints=rs.CopyObjects(self.ht_constraints,[self.max*i,self.max*j,0])
+                try:
+                    temp_neg_crv=rs.CopyObjects(self.neg_site_crv,[self.max*i,self.max*j,0])
+                except:
+                    temp_neg_crv=None
+                try:
+                    temp_ht_constraints=rs.CopyObjects(self.ht_constraints,[self.max*i,self.max*j,0])
+                except:
+                    temp_ht_constraints=None
                 m=main(FileName,temp_site_crv,temp_neg_crv,temp_ht_constraints)
                 r=m.getInpObj()
                 self.res_obj.append(r)
