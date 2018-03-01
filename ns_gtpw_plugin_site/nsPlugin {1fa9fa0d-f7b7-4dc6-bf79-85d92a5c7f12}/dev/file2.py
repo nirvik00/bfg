@@ -19,6 +19,7 @@ class RunProc(object):
         self.num_copies=1
         self.site_crv=rs.GetObject('pick site boundary')
         self.neg_site_crv=rs.GetObjects('pick negative boundary')
+        self.ht_constraints=rs.GetObjects('pick height constraints')
         self.site_copy=[]
         self.req_srfobj_li=[]
         self.got_ar_li=[]
@@ -55,7 +56,7 @@ class RunProc(object):
                 temp_site_crv=rs.CopyObject(self.site_crv,[self.max*i,self.max*j,0])
                 self.site_copy.append(temp_site_crv)
                 temp_neg_crv=rs.CopyObjects(self.neg_site_crv,[self.max*i,self.max*j,0])
-                m=main(FileName,temp_site_crv,temp_neg_crv)
+                m=main(FileName,temp_site_crv,temp_neg_crv,self.ht_constraints)
                 r=m.getInpObj()
                 self.res_obj.append(r)
                 got_flr_area_ite=m.genFuncObj_Site()
