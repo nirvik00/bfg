@@ -46,7 +46,7 @@ class main(object):
                     sep_min=i.split(',')[8]
                     sep_max=i.split(',')[9]
                     colr=i.split(',')[10]
-                    o=inp_obj(self.site,n,num,far_rat,l_min,l_max,w_min,w_max,h_,sep_min,sep_max,colr)
+                    o=inp_obj(self.site,n,num,far_rat,l_min,l_max,w_min,w_max,h_,sep_min,sep_max,colr,self.neg_site_crv)
                     r.append(o)
                 except:
                     #print('error in csv')
