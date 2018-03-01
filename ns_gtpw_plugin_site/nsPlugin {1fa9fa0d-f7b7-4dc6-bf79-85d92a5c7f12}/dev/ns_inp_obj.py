@@ -129,6 +129,16 @@ class inp_obj(object):
                     intx1=rs.CurveCurveIntersection(poly_geo,i)
                     if(intx1 and len(intx1)>0):
                         sum+=1
+                for i in self.neg_crv:
+                    poly_pts=rs.CurvePoints(poly_geo)
+                    for pt in poly_pts:
+                        if(rs.PointInPlanarClosedCurve(pt,i)!=0):
+                            sum+=1
+                for i in self.neg_crv:
+                    neg_pts=rs.CurvePoints(i)
+                    for pt in neg_pts:
+                        if(rs.PointInPlanarClosedCurve(pt,poly_geo)!=0):
+                            sum+=1
                 if(sum<1):
                     rs.DeleteObject(poly_geo)
                     return poly
