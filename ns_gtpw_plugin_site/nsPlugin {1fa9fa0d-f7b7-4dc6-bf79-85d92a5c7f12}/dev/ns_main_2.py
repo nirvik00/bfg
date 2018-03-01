@@ -7,7 +7,8 @@ from ns_inp_obj import inp_obj as inp_obj
 from ns_site_obj import site_obj as site_obj
 
 class main(object):
-    def __init__(self,x,c):
+    def __init__(self,x,c,nc):
+        self.neg_site_crv=nc
         self.path=x
         self.site=rs.coercecurve(c)
         self.req_obj=[]
@@ -15,7 +16,11 @@ class main(object):
         self.fsr=0
         self.bua=float(self.site_ar)*float(self.fsr)
         self.srf_obj=[]
-            
+        self.floor_plate=[]
+        self.total_floor_area=0
+        self.highlight=False
+        self.generation_area=0
+    
     def getInpObj(self):
         ln=[]
         with open(self.path ,"r") as f:
@@ -28,33 +33,34 @@ class main(object):
             if(k>0):
                 try:
                     n=i.split(',')[0]
+                    if(n=="" or not n):
+                        break
                     num=i.split(',')[1]
                     far_rat=float(i.split(',')[2])
-                    req_total_far+=far_rat
+                    req_total_far+=float(far_rat)
                     l_min=i.split(',')[3]
                     l_max=i.split(',')[4]
                     w_min=i.split(',')[5]
                     w_max=i.split(',')[6]
-                    h_min=i.split(',')[7]
-                    h_max=i.split(',')[8]
-                    sep_min=i.split(',')[9]
-                    sep_max=i.split(',')[10]
-                    colr=i.split(',')[11]
-                    o=inp_obj(self.site,n,num,far_rat,l_min,l_max,w_min,w_max,h_min,h_max,sep_min,sep_max,colr)
+                    h_=i.split(',')[7]
+                    sep_min=i.split(',')[8]
+                    sep_max=i.split(',')[9]
+                    colr=i.split(',')[10]
+                    o=inp_obj(self.site,n,num,far_rat,l_min,l_max,w_min,w_max,h_,sep_min,sep_max,colr)
                     r.append(o)
                 except:
-                    print('error in csv')
+                    #print('error in csv')
                     break
             k+=1
         self.fsr = req_total_far
         self.bua=float(self.site_ar)*float(self.fsr)
         for i in r:
             ar=i.getArea()
-            num_flrs=int(ar/(i.getNumber()*i.getFloorArea()))+1
+            num_flrs=int(ar/(i.getNumber()*i.getFloorArea()))
             i.setNumFloors(num_flrs)
         self.req_obj=r
         return r
-        
+    
     def checkPoly(self,pts,poly):
         sum=0
         for i in pts:
@@ -73,7 +79,7 @@ class main(object):
             return False
         else:
             return True
-            
+    
     def genFuncObj_Site(self):
         s=site_obj(self.site)
         pts=s.getPts()
@@ -85,7 +91,7 @@ class main(object):
                 T=False
                 k=0
                 this_gen_poly=None
-                while(T==False and k<100):
+                while(T==False and k<500):
                     x=random.randint(1,len(pts)-2)
                     p=pts[x-1]
                     q=pts[x]
@@ -116,16 +122,21 @@ class main(object):
                     if(len(this_gen_poly)>0):
                         i.setGenPoly(rs.AddPolyline(this_gen_poly))#boundary-poly
         counter=0
+        floor_plate=[]
+        self.total_floor_area=0
         for i in self.req_obj:
-            poly=i.getGenPoly() # n boundary poygons are created from input
             num_flrs=i.getNumFloors()
             l=i.getSide0()
             w=i.getSide1()
             a=i.getReqAr()
             h=i.getHt()
-            #print(num_flrs, l, w, a, h)
-            if((num_flrs*4)<(a/(2*l*w))):
-                rs.MessageBox('number of floor = '+str(num_flrs)+'\ninput L and W for the required FSR are insufficient.\nCompensated in height ')
+            n=i.getNumber()
+            nm=i.getName()
+            poss_num_flrs=(h/4)*n
+            poly=i.getGenPoly() # n boundary poygons are created from input
+            #print(nm,l,w,h,n,a,' :: ',num_flrs, poss_num_flrs)
+            actual_num_flr=0
+            actual_ar_each=0
             if(poly is not None and len(poly)>0):
                 for j in poly: # for each poly in bounding-poly get internal-poly
                     counter2=0
@@ -133,8 +144,19 @@ class main(object):
                     npoly=i.getReqPoly()
                 for j in i.getReqPoly():
                     li=[]
-                    for k in range(i.getNumFloors()):
+                    for k in range(i.getNumFloors()+1):
+                        """
+                        # stop iteration at height
+                        if((4*k)>h):
+                            break
+                        """
+                        # allow iteration until area is met
                         c=rs.CopyObjects(j,[0,0,4*k])
+                        self.total_floor_area+=rs.CurveArea(j)[0]
+                        if(rs.IsCurve(c)):
+                            floor_plate.append(c)
+                            actual_num_flr+=1
+                            actual_ar_each+=(rs.CurveArea(c)[0])
                         rs.ObjectLayer(c,"garbage")
                         li.append(c)
                     try:
@@ -145,17 +167,28 @@ class main(object):
                         self.srf_obj.append([i,srf])
                     except:
                         pass
-                        
+                i.setActualNumFlrs(actual_num_flr)
+                i.setActualArea(actual_ar_each)
+        self.floor_plate=floor_plate
+        #rs.CopyObjects(self.floor_plate, [300,0,0])
+        #print("total floor area = ", self.total_floor_area)
+        return self.total_floor_area
+        
     def retResult(self):
         str=[]
         sum_area=0
         sum_foot=0
         req_str=[]
+        self.generation_area=0
         for i in self.req_obj:
             name=i.getName()
             area=i.getArea()
-            num_flrs=i.getNumFloors()
+            #num_flrs=i.getNumFloors()
+            #num_flrs=i.getPossFlrFromHt()
+            num_flrs=i.getActualNumFlrs()
             num_poly=len(i.getGenPoly())
+            actual_area=i.getActualArea()
+            self.generation_area+=actual_area
             #find the area of internal poly
             num_int_poly_check=len(i.getReqPoly())
             int_poly=[]
@@ -165,8 +198,10 @@ class main(object):
                 ar_int_poly=rs.CurveArea(int_poly)[0]
             except:
                 pass
+            diff_area=i.getDifferenceArea()
             #print / add as string
-            this_str=[name, area, num_poly, num_flrs, ar_int_poly]
+            this_str=[name, area, (num_poly), (num_flrs), ar_int_poly, actual_area, diff_area]
+            #print(name, area, num_poly, num_flrs, ar_int_poly, diff_area)
             req_str.append(this_str)
         return req_str
     
@@ -196,9 +231,15 @@ class main(object):
                     rs.DeleteObject(bound_poly)
                 except:
                     pass
-                    
+    
+    def retGenArea(self):
+        return self.generation_area
+    
     def finalSrf(self):
         return self.srf_obj
+    
+    def finalFloorPlate(self):
+        return self.floor_plate
     
     def getMainFSR(self):
         return self.fsr
