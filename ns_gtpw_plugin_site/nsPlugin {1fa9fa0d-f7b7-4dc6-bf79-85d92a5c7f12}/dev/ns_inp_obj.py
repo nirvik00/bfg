@@ -121,9 +121,19 @@ class inp_obj(object):
         c=rs.PointAdd(b,prA)
         t=self.checkContainment(a,b,c)
         if(t==True):
-            #poly=rs.AddPolyline([q,a,c,b,q])
             poly=[q,a,c,b,q]
-            return poly
+            poly_geo=rs.AddPolyline(poly)
+            sum=0
+            for i in self.neg_crv:
+                intx1=rs.CurveCurveIntersection(poly_geo,i)
+                if(intx1 and len(intx1)>0):
+                    sum+=1
+            if(sum<1):
+                rs.DeleteObject(poly_geo)
+                return poly
+            else:
+                rs.DeleteObject(poly_geo)
+                return None
         else:
             return None
     
@@ -163,8 +173,13 @@ class inp_obj(object):
             tx1=rs.PointInPlanarClosedCurve(a,i)
             tx2=rs.PointInPlanarClosedCurve(b,i)
             tx3=rs.PointInPlanarClosedCurve(c,i)
-            if(tx1 !=0 or tx2!=0 or tx3!=0):
+            if(tx1==0 and tx2==0 and tx3==0):
+                pass
+                #point is outside curve 
+            else:
+                #point is inside curve 
                 sum+=1
+
         if(t1!=0 and t2!=0 and t3!=0 and sum<1):
             return True #inside or on curve
         else:
